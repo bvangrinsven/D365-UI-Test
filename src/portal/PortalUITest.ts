@@ -42,6 +42,37 @@ export class PortalUiTest {
     }
 
     /**
+     * Function for launching a playwright instance
+     *
+     * @param {playwright.BrowserContext} [browserContext] Launch options for launching playwright. Will be used for calling playwright.launch.
+     * @returns {Array<playwright.Browser, playwright.BrowserContext, playwright.Page} Started browser instance, browser context, page
+     * @remarks viewport in contextOptions is preset to null for using your clients default resolution. Overwrite viewport to change.
+     */
+    launchPersistant = async (browser: "msedge" | "chromium" | "firefox" | "webkit" = "chromium",
+        executablePath: string,
+        userDataDirectory: string,
+        downloadsDirectory: string,
+    ): Promise<[playwright.Browser, playwright.BrowserContext, playwright.Page]> => {
+    
+        this._context = await playwright.chromium.launchPersistentContext(userDataDirectory,
+            {
+                channel: 'msedge',
+                headless: false,
+                executablePath: executablePath,
+                downloadsPath: downloadsDirectory,
+                args: ["--start-maximized"],
+                viewport: null,
+            });
+
+        this._browser = await this._context.browser();
+        // tslint:disable-next-line:no-null-keyword
+        this._page = await this._context.newPage();
+
+        return [this._browser, this._context, this._page];
+    }
+
+
+    /**
      * Open the portals instance by url
      *
      * @param {string} [url] Url of the portal you wish to open
